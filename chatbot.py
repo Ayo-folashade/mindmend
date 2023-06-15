@@ -58,7 +58,7 @@ st.title("MindMend")
 st.subheader("A Mental Wellness Support Chatbot")
 
 # Multi-step Conversation
-query = st.text_input("Enter your question:")
+query = st.text_input("Ask me anything! I'm here to help:")
 if query:
     response = index.query(query, llm=llm)
     if "follow_up_question" in response:
@@ -71,4 +71,4 @@ if query:
 
 # Error Handling
 if not query:
-    st.warning("Curious about something?")
+    st.warning("What's on your mind?")
