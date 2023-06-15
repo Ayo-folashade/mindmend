@@ -4,4 +4,3 @@ openai~=0.27.8
 docarray
 tiktoken
 python-dotenv~=1.0.0
-pyttsx3~=2.90

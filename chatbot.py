@@ -1,5 +1,6 @@
 import os
-import pyttsx3 as pyttsx3
+
+import streamlit as st
 from dotenv import load_dotenv, find_dotenv
 from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
@@ -7,7 +8,6 @@ from langchain.document_loaders import CSVLoader
 from langchain.embeddings import OpenAIEmbeddings, openai
 from langchain.indexes import VectorstoreIndexCreator
 from langchain.vectorstores import DocArrayInMemorySearch
-import streamlit as st
 
 # Load environment variables from .env file
 _ = load_dotenv(find_dotenv())
@@ -53,14 +53,6 @@ qa_stuff = RetrievalQA.from_chain_type(
 def display_avatar():
     st.image("avatar/bot_avatar.jpeg", width=100)
 
-
-# Text-to-speech
-def speak(text):
-    engine = pyttsx3.init()
-    engine.say(text)
-    engine.runAndWait()
-
-
 # Set title and subheader/head
 st.title("MindMend")
 st.subheader("A Mental Wellness Support Chatbot")
@@ -76,7 +68,6 @@ if query:
     st.text("Response:")
     display_avatar()
     st.markdown(f"**MindMend:** {response}")
-    st.button("Read Response", on_click=lambda: speak(response))
 
 # Error Handling
 if not query:
