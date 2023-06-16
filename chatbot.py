@@ -16,8 +16,8 @@ _ = load_dotenv(find_dotenv())
 openai.api_key = os.environ['OPENAI_API_KEY']
 
 # Load data from CSV file
-file = 'data.csv'
-loader = CSVLoader(file_path=file)
+file = 'Mental_Health_FAQ.csv'
+loader = CSVLoader(file_path=file, encoding='utf-8')
 docs = loader.load()
 
 # Initialize embeddings
@@ -52,6 +52,7 @@ qa_stuff = RetrievalQA.from_chain_type(
 # Bot Avatar
 def display_avatar():
     st.image("avatar/bot_avatar.jpeg", width=100)
+
 
 # Set title and subheader/head
 st.title("MindMend")
