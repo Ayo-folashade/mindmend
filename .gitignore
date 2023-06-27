@@ -1,28 +1,5 @@
-# Python specific ignores
-
-*.pyc
-__pycache__/
-*.pyo
-*.pyd
-
-# Environment specific ignores
-
-venv/
-env/
-# Exclude .env file
+# created by virtualenv automatically
+bot/
+apikey.py
+__pycache__
 .env
-.venv/
-.vscode/
-.idea/
-*.egg-info/
-dist/
-build/
-*.egg
-*.log
-logs/
-
-# Other common ignores
-
-.DS_Store
-*.swp
-*~

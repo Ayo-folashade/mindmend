@@ -1,75 +1,73 @@
-import os
-
-import streamlit as st
-from dotenv import load_dotenv, find_dotenv
-from langchain.chains import RetrievalQA
-from langchain.chat_models import ChatOpenAI
+from langchain.llms import OpenAI
 from langchain.document_loaders import CSVLoader
-from langchain.embeddings import OpenAIEmbeddings, openai
-from langchain.indexes import VectorstoreIndexCreator
+from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import DocArrayInMemorySearch
-
-# Load environment variables from .env file
-_ = load_dotenv(find_dotenv())
-
-# Set OpenAI API key from environment variable
-openai.api_key = os.environ['OPENAI_API_KEY']
-
-# Load data from CSV file
-file = 'Mental_Health_FAQ.csv'
-loader = CSVLoader(file_path=file, encoding='utf-8')
-docs = loader.load()
-
-# Initialize embeddings
-embeddings = OpenAIEmbeddings()
-
-# Create document search database
-db = DocArrayInMemorySearch.from_documents(
-    docs,
-    embeddings
-)
-
-# Create index for search
-index = VectorstoreIndexCreator(
-    vectorstore_cls=DocArrayInMemorySearch
-).from_loaders([loader])
-
-# Create retriever
-retriever = db.as_retriever()
-
-# Create ChatOpenAI instance
-llm = ChatOpenAI(temperature=0.0)
-
-# Create RetrievalQA instance
-qa_stuff = RetrievalQA.from_chain_type(
-    llm=llm,
-    chain_type="stuff",
-    retriever=retriever,
-    verbose=True
-)
+from langchain.prompts import PromptTemplate
+from langchain.chains import RetrievalQA
+from langchain.chains.conversation.memory import ConversationBufferWindowMemory
+from langchain.agents import Tool
+from langchain.chat_models import ChatOpenAI
+from langchain.agents import initialize_agent
 
 
-# Bot Avatar
-def display_avatar():
-    st.image("avatar/bot_avatar.jpeg", width=100)
 
 
-# Set title and subheader/head
-st.title("MindMend")
-st.subheader("A Mental Wellness Support Chatbot")
+def setup_chain():
+    file = 'Mental_Health_FAQ.csv'
+    template = """Use the following pieces of context to answer the question at the end. If you don't know the answer,
+                  just say that 'Please ask a question related to mental health',
+                 don't try to make up an answer.
 
-# Multi-step Conversation
-query = st.text_input("Ask me anything! I'm here to help:")
-if query:
-    response = index.query(query, llm=llm)
-    if "follow_up_question" in response:
-        follow_up_query = st.text_input(response["follow_up_question"])
-        if follow_up_query:
-            response = index.query(follow_up_query, llm=llm)
-    st.text("Response:")
-    display_avatar()
-    st.markdown(f"**MindMend:** {response}")
+                {context}
 
-# Error Handling
-if not query:
-    st.warning("What's on your mind?")
+                Question: {question}
+                Helpful Answer:"""
+    embeddings = OpenAIEmbeddings()
+    loader = CSVLoader(file_path=file, encoding='utf-8')
+    docs = loader.load()
+    prompt = PromptTemplate(template=template, input_variables=["context", "question"])
+    db = DocArrayInMemorySearch.from_documents(docs, embeddings)
+    retriever = db.as_retriever()
+    chain_type_kwargs = {"prompt": prompt}
+
+    # chat completion llm
+    llm = ChatOpenAI(
+        # model_name='gpt-3.5-turbo',
+        temperature=0.0
+    )
+
+    # conversational memory
+    conversational_memory = ConversationBufferWindowMemory(
+        memory_key='chat_history',
+        k=5,
+        return_messages=True
+    )
+
+    # retrieval qa chain
+    chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        chain_type="stuff",
+        retriever=retriever,
+        chain_type_kwargs=chain_type_kwargs
+    )
+
+    tools = [
+        Tool(
+            name='Knowledge Base',
+            func=chain.run,
+            description=(
+                'use this tool when answering general knowledge queries to get '
+                'more information about the topic'
+            )
+        )
+    ]
+    agent = initialize_agent(
+        agent='chat-conversational-react-description',
+        tools=tools,
+        llm=llm,
+        verbose=True,
+        max_iterations=3,
+        early_stopping_method='generate',
+        memory=conversational_memory
+    )
+    return agent

@@ -1,0 +1,99 @@
+{% extends "base.html" %} {% block content %}
+<div class="container py-5">
+  <div class="row">
+    <div class="col-md-6 offset-md-3">
+      <!-- Chat Box -->
+      <div class="card">
+        <div class="card-body">
+          <div id="chat-box" class="list-group-flush">
+            <!-- Chat messages will go here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Thinking Indicator -->
+      <span id="thinking" style="display: none;">Thinking</span>
+
+      <!-- Input Box -->
+      <div class="input-group mt-3">
+        <input
+          id="chat-input"
+          type="text"
+          class="form-control"
+          placeholder="Type your message here..."
+        />
+        <div class="input-group-append">
+          <button id="send-btn" class="btn btn-primary">Send</button>
+        </div>
+      </div>
+
+      <!-- End Chat Button -->
+      <button id="end-btn" class="btn btn-danger mt-3">End Chat</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+  $(document).ready(function () {
+    // Send message function
+    function sendMessage() {
+      var message = $("#chat-input").val();
+
+      // Show the thinking indicator and start adding dots
+      $("#thinking").show();
+      var dotCount = 0;
+      var thinkingDots = setInterval(function() {
+        dotCount += 1;
+        if (dotCount <= 5) {
+          $("#thinking").append(".");
+        } else {
+          $("#thinking").text("Thinking");
+          dotCount = 0;
+        }
+      }, 500);  // append a dot every 500 milliseconds
+
+      // Send the chat message to the server
+      $.post("/chat", { message: message }, function (data) {
+        // Add the user's message to the chat box
+        $("#chat-box").append(
+          '<div class="list-group-item"><strong>You:</strong> ' +
+            message +
+            "</div>"
+        );
+
+        // Add the chatbot's response to the chat box
+        $("#chat-box").append(
+          '<div class="list-group-item"><strong>MindMend:</strong> ' +
+            data.bot_reply +
+            "</div>"
+        );
+
+        // Clear the chat input box
+        $("#chat-input").val("");
+
+        // Clear interval and hide the thinking indicator
+        clearInterval(thinkingDots);
+        $("#thinking").hide().text("Thinking");
+      });
+    }
+
+    // Handle Send button click
+    $("#send-btn").click(sendMessage);
+
+    // Handle Enter key press
+    $("#chat-input").keypress(function (e) {
+      if (e.which == 13) {
+        // Enter key pressed
+        sendMessage();
+      }
+    });
+
+    // Handle End Chat button click
+    $("#end-btn").click(function () {
+      // Redirect to the 'end_chat' route
+      window.location.href = "/end_chat";
+    });
+  });
+</script>
+{% endblock %}
