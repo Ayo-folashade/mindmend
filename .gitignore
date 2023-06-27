@@ -3,3 +3,20 @@ bot/
 apikey.py
 __pycache__
 .env
+venv/
+env/
+.venv/
+.vscode/
+.idea/
+*.egg-info/
+dist/
+build/
+*.egg
+*.log
+logs/
+
+# Other common ignores
+
+.DS_Store
+*.swp
+*~
