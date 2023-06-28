@@ -1,9 +1,15 @@
+import os
+
+from dotenv import load_dotenv, find_dotenv
 from langchain.document_loaders import CSVLoader
-from langchain.embeddings import OpenAIEmbeddings
+from langchain.embeddings import OpenAIEmbeddings, openai
 from langchain.vectorstores import DocArrayInMemorySearch
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
+
+_ = load_dotenv(find_dotenv())  # read local .env file
+openai.api_key = os.environ['OPENAI_API_KEY']
 
 
 # Define the setup_chain function
