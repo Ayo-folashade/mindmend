@@ -6,7 +6,6 @@ __pycache__/
 *.pyd
 
 # Environment specific ignores
-
 venv/
 env/
 # Exclude .env file
