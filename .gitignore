@@ -1,10 +1,16 @@
-# created by virtualenv automatically
-bot/
-apikey.py
-__pycache__
-.env
+# Python specific ignores
+
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+
+# Environment specific ignores
+
 venv/
 env/
+# Exclude .env file
+.env
 .venv/
 .vscode/
 .idea/

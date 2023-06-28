@@ -4,22 +4,26 @@ from dotenv import load_dotenv
 
 from chatbot import setup_chain
 
-
+# Load environment variables
 load_dotenv()
 
-
+# Initialize Flask app
 app = Flask(__name__)
 
+# Set secret key
 app.secret_key = os.getenv('secret_key')
 
+# Initialize chain variable
 chain = None
 
 
+# Define route for home page
 @app.route("/")
 def hello():
     return render_template("home.html")
 
 
+# Define route for start page
 @app.route("/start")
 def start():
     if "OPENAI_API_KEY" in session:
@@ -29,6 +33,7 @@ def start():
         return redirect(url_for("login"))
 
 
+# Define route for login page
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -46,6 +51,7 @@ def login():
     return render_template("login.html")
 
 
+# Define route for chat page
 @app.route("/chat", methods=["GET", "POST"])
 def chat():
     print("Session data:", session)  # Print session data
@@ -67,13 +73,15 @@ def chat():
         # Pass the chat message to the LLM chain
         response = chain.run(message)
 
-        # Return the chatbot's response as JSON
+        # Return the chatbot response as JSON
         return jsonify({"message": message, "bot_reply": response})
 
     else:
         # If it's a GET request, render the chat page
         return render_template("chat.html")
 
+
+# Define route for ending the chat
 @app.route('/end_chat')
 def end_chat():
     # Clear the session
@@ -83,6 +91,6 @@ def end_chat():
     return redirect(url_for('start'))
 
 
-
+# Run the Flask app
 if __name__ == "__main__":
     app.run(debug=True)
