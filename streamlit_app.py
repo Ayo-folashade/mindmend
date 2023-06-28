@@ -1,16 +1,15 @@
 import os
-from langchain.document_loaders import CSVLoader
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import DocArrayInMemorySearch
-from langchain.prompts import PromptTemplate
+import streamlit as st
+from dotenv import load_dotenv, find_dotenv
 from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
-import streamlit as st
+from langchain.document_loaders import CSVLoader
+from langchain.embeddings import OpenAIEmbeddings, openai
+from langchain.prompts import PromptTemplate
+from langchain.vectorstores import DocArrayInMemorySearch
 
-# Load environment variables
 _ = load_dotenv(find_dotenv())  # read local .env file
 openai.api_key = os.environ['OPENAI_API_KEY']
-
 
 def setup_chain():
     # Define file path and template
